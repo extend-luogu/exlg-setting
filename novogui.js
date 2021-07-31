@@ -1,8 +1,28 @@
 const log = (f, ...s) => console.log(`%c[novogui] ${f}`, "color: #d57870;", ...s)
+const msg = (s, id) => {
+	const msg_q = sto["@dash-board"].msg.queue
+	const $m = $(`<p></p>`)
+		.html(s)
+		.appendTo($(".clickgui > .messages"))
+	$(`<span class="message-close">X</span>`)
+		.appendTo($m)
+		.on("click", () => {
+			$m.remove()
+			msg_q.$splice(msg_q.$findIndex(m => m.id === id), 1)
+		})
+
+	if (id === undefined) {
+		const l = msg_q.$length
+		msg_q[l] = {
+			text: s,
+			id: id = sto["@dash-board"].msg.last_id ++
+		}
+	}
+}
 let sto
 
-let alwaysVisibile = "true"
-let SettingType = {
+const alwaysVisibile = "true"
+const SettingType = {
 	COMBOBOX: 0,
 	SLIDER: 1,
 	TEXTBOX: 2,
@@ -68,50 +88,39 @@ const Module = class {
 		this.settings = settings
 	}
 }
-let settings = new Map()
-let moduleRegistry = []
-const getNextSlider = sliderId => {
-	switch (sliderId) {
-	case "h":
-		return "s"
-	case "s":
-		return "l"
-	case "l":
-		return "h"
-	}
-}
+const settings = new Map()
+const moduleRegistry = []
+const getNextSlider = sliderId => ({ h: "s", s: "l", l: "h" } [sliderId])
 const checkboxChecked = setting => $(`#${setting} > .checkbox-value`).hasClass("checkbox-checked")
 const getSliderValue = setting =>  $(`#${setting} > .real-slider`).val()
 const getSelectboxValue = setting => $(`#${setting} > .selectbox-value`).text()
 const selectboxHasItem = (setting, item) => $(`#${setting} > .combobox-items > li:contains('${item}')`).hasClass("selected-item")
 const expandHandler = module => {
-	let growDiv = $(`#${module}-module > .module-settings-wrapper`)
-	let expander = $(`#${module}-module > .module-header > .module-expand`)
-	if (growDiv.height()) {
-		growDiv.height(0)
-		expander.css("transform", "rotateX(0deg)")
+	const $growDiv = $(`#${module}-module > .module-settings-wrapper`)
+	const $expander = $(`#${module}-module > .module-header > .module-expand`)
+	if ($growDiv.height()) {
+		$growDiv.height(0)
+		$expander.css("transform", "rotateX(0deg)")
 	} else {
-		let wrapper = $(`#${module}-module > .module-settings-wrapper > .module-settings`)
-		growDiv.height(wrapper.height())
-		expander.css("transform", "rotateX(180deg)")
+		const $wrapper = $(`#${module}-module > .module-settings-wrapper > .module-settings`)
+		$growDiv.height($wrapper.height())
+		$expander.css("transform", "rotateX(180deg)")
 	}
 	return false
 }
 
 const forceUpdate = module => {
-	let growDiv = $(`#${module}-module > .module-settings-wrapper`)
-	let wrapper = $(
-		`#${module}-module > .module-settings-wrapper > .module-settings`
-	)
-	growDiv.height(wrapper.height())
+	const $growDiv = $(`#${module}-module > .module-settings-wrapper`)
+	const $wrapper = $(`#${module}-module > .module-settings-wrapper > .module-settings`)
+	$growDiv.height($wrapper.height())
 }
 const toggleModule = module => {
-	let moduleHeader = $(`#${module}-module > .module-header`)
-	if (moduleHeader.hasClass("toggled-module")) {
-		moduleHeader.removeClass("toggled-module")
+	const $moduleHeader = $(`#${module}-module > .module-header`)
+	if ($moduleHeader.hasClass("toggled-module")) {
+		$moduleHeader.removeClass("toggled-module")
 		return false
 	} else {
-		moduleHeader.addClass("toggled-module")
+		$moduleHeader.addClass("toggled-module")
 		return true
 	}
 }
@@ -122,12 +131,12 @@ const registerModules = modules => {
 	modules.forEach(category => {
 		renderCategory(category)
 		category.children.forEach(module => {
-			let sets = new Map()
+			const sets = new Map()
 			moduleRegistry.push(module)
 			if ("settings" in module)
 				module.settings.forEach(setting => {
-					let settingName = setting.name
-					let visibilityDependency =
+					const settingName = setting.name
+					const visibilityDependency =
 						"visibilityDependency" in setting
 							? setting.visibilityDependency
 							: alwaysVisibile
@@ -218,7 +227,7 @@ const renderCategory = category => {
 	`)
 }
 const renderModule = (category, module) => {
-	let hasSetting = module.settings.length > 0
+	const hasSetting = module.settings.length > 0
 	$(`#${ category.name }-tab > .panel-elements`).append(`
 		<div id="${ module.name }-module" class="module">
 			<div class="module-header">
@@ -231,14 +240,14 @@ const renderModule = (category, module) => {
 		</div>
 	`)
 
-	let header = $(`#${ module.name }-module > .module-header`)
+	const $header = $(`#${ module.name }-module > .module-header`)
 	if (hasSetting)
-		header.contextmenu(() => expandHandler(module.name))
+		$header.contextmenu(() => expandHandler(module.name))
 
-	if (module.rawName[0] === "@") header.addClass("locked-module")
+	if (module.rawName[0] === "@") $header.addClass("locked-module")
 	else {
 		if (sto[module.rawName].on) toggleModule(module.name) // Sto: load
-		header.on("click", () => {
+		$header.on("click", () => {
 			sto[module.rawName].on = toggleModule(module.name) // Sto: save
 		})
 	}
@@ -246,7 +255,7 @@ const renderModule = (category, module) => {
 const renderSettings = module => {
 	let html = `<div class="module-settings">`
 	module.settings.forEach(setting => {
-		let val = sto[module.rawName][setting.name]
+		const val = sto[module.rawName][setting.name]
 
 		switch (SettingType[setting.type]) {
 		case SettingType.SELECTBOX:
@@ -283,7 +292,7 @@ const renderSettings = module => {
 				<div id="${ setting.name }" class="setting textbox-setting">
 					<span class="setting-title">${ setting.displayName }</span>
 					<span class="textbox-at">@</span>
-					<textarea class="textbox" value="${ val || "" }"></textarea>
+					<textarea class="textbox">${ val || "" /* Sto: load */  }</textarea>
 				</div>
 			`
 			break
@@ -324,7 +333,33 @@ const renderSettings = module => {
 	})
 	return html
 }
-const renderSidebar = () => {}
+
+const renderMessages = () => {
+	$(`<div class="messages"></div>`).appendTo($(".clickgui"));
+	[ ...sto["@dash-board"].msg.queue ].forEach(m => msg(m.text, m.id))
+}
+
+const renderSidebar = () => {
+	const $bar = $(`<div class="sidebar"></div>`).prependTo($(".clickgui"))
+
+	const op = {
+		sync: () => {
+			sto = window.exlg.TM_dat.sto = exlg.TM_dat.reload_dat()
+			msg("Storage is synchronized.")
+		}
+	}
+
+	for (const n in op) {
+		$(`
+			<div id="sidebar-${n}">
+				<p class="sidebar-title">${n}</p>
+			</div>
+		`)
+			.appendTo($bar)
+			.on("click", op[n])
+	}
+}
+
 const refreshSettingVisiblity = module => {
 	if ("settings" in module)
 		module.settings.forEach(setting =>
@@ -338,18 +373,18 @@ const refreshSettings = module => {
 	forceUpdate(module.name)
 }
 const getHSLColorFromSetting = setting => {
-	let h = $(`#${setting} > .sliders > .real-h-slider`).val()
-	let s = $(`#${setting} > .sliders > .real-s-slider`).val()
-	let l = $(`#${setting} > .sliders > .real-l-slider`).val()
+	const h = $(`#${setting} > .sliders > .real-h-slider`).val()
+	const s = $(`#${setting} > .sliders > .real-s-slider`).val()
+	const l = $(`#${setting} > .sliders > .real-l-slider`).val()
 	return `hsl(${h}, ${s}, ${l})`
 }
 const registerHandlers = () => {
 	moduleRegistry.forEach(refreshSettingVisiblity)
 
 	$(".real-slider").on("input", e => {
-		let that = e.currentTarget
-		let id = $(that).parent().attr("id")
-		let setting = settings.get(id)
+		const that = e.currentTarget
+		const id = $(that).parent().attr("id")
+		const setting = settings.get(id)
 		$(`#${id} > .display-slider`).val(that.value)
 		$(`#${id} > .slider-value-holder > .slider-value`).html(that.value)
 		refreshSettings(setting.parent)
@@ -358,71 +393,71 @@ const registerHandlers = () => {
 	})
 
 	$(".combobox-items > li").on("click", e => {
-		let element = $(e.target)
-		let id = $(e.currentTarget).parent().parent().attr("id")
-		let setting = settings.get(id)
-		toggleClass(element, "selected-item")
+		const $e = $(e.target)
+		const id = $(e.currentTarget).parent().parent().attr("id")
+		const setting = settings.get(id)
+		toggleClass($e, "selected-item")
 		refreshSettings(setting.parent)
 
 		// TODO Sto: save
 	})
 	$(".combobox-wrapper").on("click", e => {
-		let id = $(e.currentTarget).parent().attr("id")
+		const id = $(e.currentTarget).parent().attr("id")
 		toggleClass($(`#${id} > .combobox-items`), "collapsed-combobox")
-		let module = $(e.currentTarget).parent().parent().parent().parent().attr("id").split("-")[0]
+		const module = $(e.currentTarget).parent().parent().parent().parent().attr("id").split("-")[0]
 		forceUpdate(module)
 	})
 
 	$(".selectbox-value").on("click", e => {
-		let that = e.currentTarget
-		let name = that.parentElement.id
-		let setting = settings.get(name)
-		let value = $(that)
-		let i = setting.acceptableValues.indexOf(value.text())
+		const that = e.currentTarget
+		const name = that.parentElement.id
+		const setting = settings.get(name)
+		const $value = $(that)
+		let i = setting.acceptableValues.indexOf($value.text())
 		i = ++i == setting.acceptableValues.length ? 0 : i
-		let val = setting.acceptableValues[i]
-		value.text(val)
+		const val = setting.acceptableValues[i]
+		$value.text(val)
 		refreshSettings(setting.parent)
 
 		sto[setting.parent.rawName][name] = val // Sto: save
 	})
 
 	$(".textbox").on("change", e => {
-		let that = e.currentTarget
-		let name = that.parentElement.id
-		let setting = settings.get(name)
+		const that = e.currentTarget
+		const name = that.parentElement.id
+		const setting = settings.get(name)
 		
 		sto[setting.parent.rawName][name] = that.value // Sto: save
 	})
 	$(".textbox-at").on("click", e => {
-		let at = $(e.currentTarget)
-		let text = at.next(".textbox")
-		let editor = $(".textbox-editor > textarea")
+		const $at = $(e.currentTarget)
+		const $text = at.next(".textbox")
+		const $editor = $(".textbox-editor > textarea")
 
-		if (toggleClass(at, "textbox-extended")) {
-			text.attr("disabled", true)
-			editor.val(text.val())
+		if (toggleClass($at, "textbox-extended")) {
+			$text.attr("disabled", true)
+			$editor.val($text.val())
 		} else {
-			text.attr("disabled", false)
-			text.val(editor.val()).change()
+			$text.attr("disabled", false)
+			$text.val($editor.val()).change()
 		}
 	})
 
 	$(".checkbox-value").parent().on("click", e => {
 		// Note: Larger clicking area.
-		let name = e.currentTarget.id
-		let element = $(e.currentTarget).children(".checkbox-value")
-		let setting = settings.get(name)
-		let val = toggleClass(element, "checkbox-checked")
+		const name = e.currentTarget.id
+		const $e = $(e.currentTarget).children(".checkbox-value")
+		const setting = settings.get(name)
+		const val = toggleClass($e, "checkbox-checked")
 		refreshSettings(setting.parent)
 
 		sto[setting.parent.rawName][name] = val // Sto: save
 	})
 
 	$(".sliders").contextmenu(e => {
-		let id = $(e.target).parent().parent().attr("id")
-		let slider = $(e.target).parent().attr("slider")
-		let next = getNextSlider(slider)
+		const id = $(e.target).parent().parent().attr("id")
+		const $slider = $(e.target).parent().attr("slider")
+		const next = getNextSlider($slider)
 		$(e.target).parent().attr("slider", next)
 		$(`#${id} > .sliders > .${slider}-slider`).addClass("disabled-color-slider")
 		$(`#${id} > .sliders > .real-${slider}-slider`).attr("disabled", true).addClass("disabled-color-slider")
@@ -434,9 +469,9 @@ const registerHandlers = () => {
 
 	// TODO
 	$(".real-color-slider").on("input", e => {
-		let that = e.currentTarget
-		let slider = $(that).attr("slider")
-		let id = $(that).parent().parent().attr("id")
+		const that = e.currentTarget
+		const slider = $(that).attr("slider")
+		const id = $(that).parent().parent().attr("id")
 		$(`#${id} > .sliders > .${slider}-slider`).val(that.value)
 		if (slider === "h") {
 			$(`#${id} > .sliders > .s-slider`).css("background-color", `hsl(${that.value}, 100%, 50%)`)
@@ -444,7 +479,7 @@ const registerHandlers = () => {
 		}
 	})
 	$(".real-h-slider").each((_, that) => {
-		let id = $(that).parent().parent().attr("id")
+		const id = $(that).parent().parent().attr("id")
 		$(`#${id} > .sliders > .s-slider`).css("background-color", `hsl(${that.value}, 100%, 50%)`)
 		$(`#${id} > .sliders > .l-slider`).css("background-color", `hsl(${that.value}, 100%, 50%)`)
 	})
@@ -452,11 +487,13 @@ const registerHandlers = () => {
 
 window.novogui = {
 	log,
+	msg,
 	init(modules) {
-		window.novogui._ = modules
-		sto = window.exlg.TM_dat.sto
+		novogui._ = modules
+		sto = exlg.TM_dat.sto
 
 		registerModules(modules)
+		renderMessages()
 		renderSidebar()
 	}
 }

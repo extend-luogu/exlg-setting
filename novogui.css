@@ -6,6 +6,8 @@ html, body {
 :root {
 	--accent-color:				#db8c84;
 	--module-color:				#3b3b3b;
+	--bg-color:			#ffecec;
+	--lighter-color:			#fff;
 	--darker-color:				#1d1d1d;
 
 	--setting-bg-color:			#000;
@@ -13,12 +15,13 @@ html, body {
 }
 
 .clickgui {
+	display: flex;
+	margin-top: 5px;
+	flex-wrap: wrap;
 	-webkit-touch-callout: none;
 	-webkit-user-select: none;
 	-moz-user-select: none;
 	user-select: none;
-	display: flex;
-	padding: 5px;
 	/* Kill:
 	 * width: 100%;
 	 * justify-content: center;
@@ -27,15 +30,63 @@ html, body {
 }
 
 .clickgui * {
-    color: #fff;
+    color: inherit;
+}
+
+.sidebar {
+    position: relative;
+    top: 0;
+    margin-right: 15px;
+    border: solid var(--accent-color);
+    border-width: 2px 2px 2px 0;
+    border-radius: 0 8px 8px 0;
+	background-color: var(--bg-color);
+}
+
+.sidebar > div {
+	width: 45px;
+	height: 45px;
+	margin: 5px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+    border-radius: 8px;
+	color: var(--lighter-color);
+    background: var(--accent-color);
+	transition: .5s background-color, .5s color;
+}
+
+.sidebar > div:hover {
+	color: var(--accent-color);
+	background-color: var(--bg-color);
+}
+
+.sidebar-title {}
+
+.messages > p {
+	position: relative;
+	background-color: var(--bg-color);
+    color: var(--accent-color);
+    padding: 10px 15px 10px 10px;
+    margin: 0 10px 8px;
+    border: 2px solid var(--accent-color);
+    border-radius: 8px;
+    word-break: break-word;
+}
+
+.message-close {
+	position: absolute;
+    right: 3px;
+    top: 1px;
 }
 
 .panel {
 	width: 220px;
-	border: 2px solid var(--darker-color);
-    border-radius: 0 8px;
 	overflow: auto;
 	margin-right: 10px;
+	color: var(--lighter-color);
+	border: 2px solid var(--darker-color);
+    border-radius: 0 8px;
 }
 
 .panel-header {
@@ -69,7 +120,7 @@ html, body {
 	padding-bottom: 3px;
 	display: flex;
 	justify-content: space-between;
-	align-items: center;
+	align-items: baseline; /* Note: Make `v` at the first line. */
 	transition: .25s ease-in-out;
 }
 
@@ -112,7 +163,7 @@ html, body {
 	position: relative;
 	display: flex;
 	justify-content: space-between;
-	align-items: center;
+	align-items: baseline;
 	padding-left: 6px;
 	padding-right: 6px;
 	padding-top: 3px;
@@ -143,7 +194,9 @@ html, body {
 }
 
 .selectbox-setting {
-	height: 20px;
+	/* Kill:
+     * height: 20px;
+     */
 }
 
 .checkbox-value {
@@ -158,7 +211,7 @@ html, body {
 	/* Kill: No tick image
 	 * background-image: url(https: //novoline.wtf/static/novogui/icons/tick-fed8ad97dc114617e98f5fc9406ec717.png);
 	 */
-	background-color: #fff;
+	background-color: var(--lighter-color);
 	background-size: contain;
 }
 
@@ -232,7 +285,7 @@ input[type=range] {
 }
 
 .selected-item {
-	color: #fff!important;
+	color: var(--lighter-color) !important;
 }
 
 .collapsed-combobox {
@@ -263,7 +316,7 @@ input[type=range] {
 	height: 21px;
 	-webkit-appearance: none;
 	width: 1px;
-	background: #fff;
+	background: var(--lighter-color);
 }
 
 .sliders {
@@ -297,7 +350,7 @@ input[type=range] {
 	width: calc(100% - 6px);
 	border: none;
 	outline: none;
-	box-shadow: #fff 0 .5px 0;
+	box-shadow: var(--lighter-color) 0 .5px 0;
 	margin-left: 1px;
 
 	/* Note: Change to textarea to enable multiple lines. */
@@ -319,6 +372,8 @@ input[type=range] {
     min-width: 200px;
 	max-width: 800px;
 	resize: horizontal;
-	color: #000;
+    border: 2px solid var(--accent-color);
+    border-radius: 8px;
+    outline: none;
 }
 

@@ -2,7 +2,7 @@
 
 import re
 
-d = "..."
+d = ""
 
 with open(d + "index.html", "r") as html:
     text = html.readlines()
