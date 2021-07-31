@@ -230,7 +230,7 @@ const renderModule = (category, module) => {
 	const hasSetting = module.settings.length > 0
 	$(`#${ category.name }-tab > .panel-elements`).append(`
 		<div id="${ module.name }-module" class="module">
-			<div class="module-header">
+			<div class="module-header" data-info="${ module.description }">
 				<span class="module-title">${ module.name }</span>
 				${ hasSetting ? `<span class="module-expand">v</span>` : "" }
 			</div>

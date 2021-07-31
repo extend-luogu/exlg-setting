@@ -5,10 +5,11 @@ html, body {
 
 :root {
 	--accent-color:				#db8c84;
-	--module-color:				#3b3b3b;
-	--bg-color:			#ffecec;
-	--lighter-color:			#fff;
+	--accenter-color:			#e1a098;
+	--dark-color:				#3b3b3b;
 	--darker-color:				#1d1d1d;
+	--light-color:				#ffecec;
+	--lighter-color:			#fff;
 
 	--setting-bg-color:			#000;
 	--combobox-unchecked-color:	#737373;
@@ -40,7 +41,7 @@ html, body {
     border: solid var(--accent-color);
     border-width: 2px 2px 2px 0;
     border-radius: 0 8px 8px 0;
-	background-color: var(--bg-color);
+	background-color: var(--light-color);
 }
 
 .sidebar > div {
@@ -58,14 +59,14 @@ html, body {
 
 .sidebar > div:hover {
 	color: var(--accent-color);
-	background-color: var(--bg-color);
+	background-color: var(--light-color);
 }
 
 .sidebar-title {}
 
 .messages > p {
 	position: relative;
-	background-color: var(--bg-color);
+	background-color: var(--light-color);
     color: var(--accent-color);
     padding: 10px 15px 10px 10px;
     margin: 0 10px 8px;
@@ -82,7 +83,9 @@ html, body {
 
 .panel {
 	width: 220px;
-	overflow: auto;
+	/* Kill: For displaying descriptions.
+     * overflow: auto;
+     */
 	margin-right: 10px;
 	color: var(--lighter-color);
 	border: 2px solid var(--darker-color);
@@ -111,34 +114,53 @@ html, body {
 }
 
 .module {
-	background-color: var(--module-color);
+	background-color: var(--dark-color);
 	z-index: 10;
 }
 
 .module-header {
+	position: relative;
+	display: flex;
 	padding-top: 3px;
 	padding-bottom: 3px;
-	display: flex;
 	justify-content: space-between;
 	align-items: baseline; /* Note: Make `v` at the first line. */
 	transition: .25s ease-in-out;
+}
+
+.module-header:hover::after {
+    position: absolute;
+    top: 0;
+    left: 100%;
+    z-index: 100;
+	display: block;
+    width: calc(100% - 14px);
+    height: calc(100% - 4px);
+    content: attr(data-info);
+    padding: 2px 2px 2px 12px;
+    color: var(--lighter-color);
+    background-color: var(--dark-color);
 }
 
 .module-header:hover {
 	background-color: var(--darker-color);
 }
 
+.toggled-module.module-header:hover {
+	background-color: var(--accenter-color) !important;
+}
+
 .toggled-module {
-	background-color: var(--accent-color)!important;
+	background-color: var(--accent-color) !important;
 }
 
 .locked-module {
 	background-image: linear-gradient(45deg, 
-		var(--module-color) 25%,
+		var(--dark-color) 25%,
 		var(--accent-color) 0,
 		var(--accent-color) 50%,
-		var(--module-color) 0,
-		var(--module-color) 75%,
+		var(--dark-color) 0,
+		var(--dark-color) 75%,
 		var(--accent-color) 0
 	);
 	background-size: 25px;
