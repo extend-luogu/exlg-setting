@@ -112,12 +112,19 @@ html, body {
 	height: 30px;
 }
 
+/* Kill: Use a help button instead of the icon.
 .panel-icon {
 	width: 24px;
 	height: 24px;
 	filter: invert();
 	float: right;
+*/
+.panel-help {
 	margin-right: 8px;
+}
+
+.helping-panel .panel-help {
+	color: var(--accent-color);
 }
 
 .panel-title {
@@ -140,7 +147,7 @@ html, body {
 	transition: .25s ease-in-out;
 }
 
-.module-header:hover::after {
+.module-header:hover::after, .helping-panel .module-header::after {
     position: absolute;
     top: 0;
     left: 100%;
@@ -633,17 +640,21 @@ const renderTextEditor = () => {
     $(".clickgui").append(`<div class="textbox-editor"><textarea></textarea></div>`)
 }
 const renderCategory = category => {
-    $(".clickgui").append(`
+    const $panel = $(`
         <div id="${ category.name }-tab" class="panel">
             <div class="panel-header">
                 <span class="panel-title">${ category.displayName }</span>
-                ${    /* Kill: Have no images now. */ "" &&
+                ${ /* Kill: Have no images now. */ "" &&
                     `<img class="panel-icon" loading="lazy" src="?.png" />` }
+                <span class="panel-help">?</span>
             </div>
             <div class="panel-elements">
             </div>
         </div>
-    `)
+    `).appendTo($(".clickgui"))
+    $panel
+        .find(".panel-help")
+        .on("click", () => $panel.toggleClass("helping-panel"))
 }
 const renderModule = (category, module) => {
     const hasSetting = module.settings.length > 0

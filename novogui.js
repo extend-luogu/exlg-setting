@@ -217,17 +217,21 @@ const renderTextEditor = () => {
     $(".clickgui").append(`<div class="textbox-editor"><textarea></textarea></div>`)
 }
 const renderCategory = category => {
-    $(".clickgui").append(`
+    const $panel = $(`
         <div id="${ category.name }-tab" class="panel">
             <div class="panel-header">
                 <span class="panel-title">${ category.displayName }</span>
-                ${    /* Kill: Have no images now. */ "" &&
+                ${ /* Kill: Have no images now. */ "" &&
                     `<img class="panel-icon" loading="lazy" src="?.png" />` }
+                <span class="panel-help">?</span>
             </div>
             <div class="panel-elements">
             </div>
         </div>
-    `)
+    `).appendTo($(".clickgui"))
+    $panel
+        .find(".panel-help")
+        .on("click", () => $panel.toggleClass("helping-panel"))
 }
 const renderModule = (category, module) => {
     const hasSetting = module.settings.length > 0

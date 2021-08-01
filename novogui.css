@@ -100,12 +100,19 @@ html, body {
 	height: 30px;
 }
 
+/* Kill: Use a help button instead of the icon.
 .panel-icon {
 	width: 24px;
 	height: 24px;
 	filter: invert();
 	float: right;
+*/
+.panel-help {
 	margin-right: 8px;
+}
+
+.helping-panel .panel-help {
+	color: var(--accent-color);
 }
 
 .panel-title {
@@ -128,7 +135,7 @@ html, body {
 	transition: .25s ease-in-out;
 }
 
-.module-header:hover::after {
+.module-header:hover::after, .helping-panel .module-header::after {
     position: absolute;
     top: 0;
     left: 100%;
