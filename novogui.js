@@ -191,7 +191,7 @@ const registerModules = modules => {
                         )
                         break
                     }
-                    settings.set(settingName, setting)
+                    settings.set(module.name + "/" + settingName, setting)
                     sets.set(settingName, setting)
                 })
             renderModule(category, module)
@@ -237,7 +237,7 @@ const renderModule = (category, module) => {
     const hasSetting = module.settings.length > 0
     $(`#${ category.name }-tab > .panel-elements`).append(`
         <div id="${ module.name }-module" class="module">
-            <div class="module-header" data-info="${ module.description }">
+            <div class="module-header" data-desc="${ module.description }">
                 <span class="module-title">${ module.name }</span>
                 ${ hasSetting ? `<span class="module-expand">v</span>` : "" }
             </div>
@@ -263,80 +263,76 @@ const renderSettings = module => {
     let html = `<div class="module-settings">`
     module.settings.forEach(setting => {
         const val = sto[module.rawName][setting.name]
+        html += `
+            <div
+                id="${ module.name }/${ setting.name }"
+                class="setting ${ setting.type.toLowerCase() }-setting"
+                ${ setting.description?.map((s, k) => `data-desc-${k}="${s}"`).join(" ") ?? "" }
+            >
+        `
 
         switch (SettingType[setting.type]) {
         case SettingType.SELECTBOX:
             html += `
-                <div id="${ setting.name }" class="setting selectbox-setting">
-                    <span class="setting-title">${ setting.displayName }</span>
-                    <span class="selectbox-value">${ val || setting.acceptableValues[0] /* Sto: load */ }</span>
-                </div>
+				<span class="setting-title">${ setting.displayName }</span>
+				<span class="selectbox-value">${ val || setting.acceptableValues[0] /* Sto: load */ }</span>
             `
             break
         case SettingType.COMBOBOX:
             html += `
-                <div id="${ setting.name }" class="setting combobox-setting">
-                    <div class="combobox-wrapper">
-                        <span class="combobox-title">${ setting.displayName }</span>
-                    </div>
-                    <ul class="combobox-items collapsed-combobox">
-                        ${ setting.acceptableValues.map(v => `<li>${v}</li>`).join("\n") }
-                    </ul>
-                <div>
+				<div class="combobox-wrapper">
+					<span class="combobox-title">${ setting.displayName }</span>
+				</div>
+				<ul class="combobox-items collapsed-combobox">
+					${ setting.acceptableValues.map(v => `<li>${v}</li>`).join("\n") }
+				</ul>
             `
             break
         case SettingType.CHECKBOX:
             html += `
-                <div id="${ setting.name }" class="setting checkbox-setting">
-                    <span class="setting-title">${ setting.displayName }</span>
-                    <div class="checkbox-value ${ val ? "checkbox-checked" : "" /* Sto: load */ }"></div>
-                </div>
+				<span class="setting-title">${ setting.displayName }</span>
+				<div class="checkbox-value ${ val ? "checkbox-checked" : "" /* Sto: load */ }"></div>
             `
             break
         case SettingType.TEXTBOX:
             /* Note: Avoid undefined placeholder. Support extending to text editor. */
             html += `
-                <div id="${ setting.name }" class="setting textbox-setting">
-                    <span class="setting-title">${ setting.displayName }</span>
-                    <span class="textbox-at">@</span>
-                    <textarea class="textbox">${ val || "" /* Sto: load */  }</textarea>
-                </div>
+				<span class="setting-title">${ setting.displayName }</span>
+				<span class="textbox-at">@</span>
+				<textarea class="textbox">${ val || "" /* Sto: load */  }</textarea>
             `
             break
         case SettingType.SLIDER:
             html += `
-                <div id="${ setting.name }" class="setting textbox-setting">
-                    <input type="range" class="display-slider"
-                        min="${ setting.minValue }" max="${ setting.maxValue }" step="${ setting.increment }"
-                        value="${ val || setting.minValue }" disabled
-                    />
-                    <input type="range" class="real-slider"
-                        min="${ setting.minValue }" max="${ setting.maxValue }" step="${ setting.increment }"
-                        value="${ val || setting.minValue }"
-                    />
-                    <div class="slider-value-holder">
-                        <span class="setting-title">${ setting.displayName }</span>
-                        <span class="slider-value">${ val || setting.minValue /* Sto: load */ }</span>"
-                    </div>
-                </div>
+				<input type="range" class="display-slider"
+					min="${ setting.minValue }" max="${ setting.maxValue }" step="${ setting.increment }"
+					value="${ val || setting.minValue }" disabled
+				/>
+				<input type="range" class="real-slider"
+					min="${ setting.minValue }" max="${ setting.maxValue }" step="${ setting.increment }"
+					value="${ val || setting.minValue }"
+				/>
+				<div class="slider-value-holder">
+					<span class="setting-title">${ setting.displayName }</span>
+					<span class="slider-value">${ val || setting.minValue /* Sto: load */ }</span>"
+				</div>
             `
             break
         case SettingType.COLOR:
             html += `
-                <div class="setting color-setting" id="${ setting.name }">
-                    <div class="sliders" slider="h">
-                        <input type="range" class="color-slider h-slider" min="1" max="360" disabled />
-                        <input type="range" class="real-color-slider real-h-slider" min="0" max="360" slider="h" />
-                        <input type="range" class="color-slider s-slider disabled-color-slider" min="0" max="100" disabled />
-                        <input type="range" class="real-color-slider real-s-slider disabled-color-slider" min="0" max="100" slider="s" />
-                        <input type="range" class="color-slider l-slider disabled-color-slider" min="0" max="100" disabled />
-                        <input type="range" class="real-color-slider real-l-slider disabled-color-slider" min="0" max="100" slider="l" />
-                        <span class="setting-title">${ setting.displayName }</span>
-                    </div>
-                </div>
+				<div class="sliders" slider="h">
+					<input type="range" class="color-slider h-slider" min="1" max="360" disabled />
+					<input type="range" class="real-color-slider real-h-slider" min="0" max="360" slider="h" />
+					<input type="range" class="color-slider s-slider disabled-color-slider" min="0" max="100" disabled />
+					<input type="range" class="real-color-slider real-s-slider disabled-color-slider" min="0" max="100" slider="s" />
+					<input type="range" class="color-slider l-slider disabled-color-slider" min="0" max="100" disabled />
+					<input type="range" class="real-color-slider real-l-slider disabled-color-slider" min="0" max="100" slider="l" />
+					<span class="setting-title">${ setting.displayName }</span>
+				</div>
             `
             break
         }
+        html += `</div>`
     })
     return html
 }
@@ -353,6 +349,9 @@ const renderSidebar = () => {
         sync: () => {
             sto = window.exlg.TM_dat.sto = window.exlg.TM_dat.reload_dat()
             msg("Storage is synchronized.")
+        },
+        upd: () => {
+            window.exlg.mod.execute("^update")
         }
     }
 
@@ -370,9 +369,9 @@ const renderSidebar = () => {
 const refreshSettingVisiblity = module => {
     if ("settings" in module)
         module.settings.forEach(setting =>
-            $("#" + setting.name)[
+            $(`#${ module.name }-${ setting.name }`)[
                 eval(setting.visibilityDependency) === false ? "addClass" : "removeClass"
-            ]("setting-disabled")
+            ] ("setting-disabled")
         )
 }
 const refreshSettings = module => {
@@ -385,56 +384,62 @@ const _getHSLColorFromSetting = setting => {
     const l = $(`#${setting} > .sliders > .real-l-slider`).val()
     return `hsl(${h}, ${s}, ${l})`
 }
+const getSettingFromChild = $e => {
+    const $setting = $e.is(".setting") ? $e : $e.parents(".setting")
+    const id = $setting.attr("id")
+    const setting = settings.get(id)
+    const moduleName = setting.parent.rawName
+    const settingName = id.split("/")[1]
+    return {
+        id, moduleName, settingName, setting,
+        refreshSetting: () => refreshSettings(setting.parent)
+    }
+}
 const registerHandlers = () => {
     moduleRegistry.forEach(refreshSettingVisiblity)
 
     $(".real-slider").on("input", e => {
-        const that = e.currentTarget
-        const id = $(that).parent().attr("id")
-        const setting = settings.get(id)
-        $(`#${id} > .display-slider`).val(that.value)
-        $(`#${id} > .slider-value-holder > .slider-value`).html(that.value)
-        refreshSettings(setting.parent)
+        const $that = $(e.currentTarget)
+        const { id, moduleName, settingName, refreshSetting } = getSettingFromChild($that)
+        $(`#${id} > .display-slider`).val($that.val())
+        $(`#${id} > .slider-value-holder > .slider-value`).html($that.val())
+        refreshSetting()
 
-        sto[setting.parent.rawName][id] = + that.value // Sto: save
+        sto[moduleName][settingName] = + $that.val() // Sto: save
     })
 
-    $(".combobox-items > li").on("click", e => {
-        const $e = $(e.target)
-        const id = $(e.currentTarget).parent().parent().attr("id")
-        const setting = settings.get(id)
-        toggleClass($e, "selected-item")
-        refreshSettings(setting.parent)
-
-        // TODO Sto: save
-    })
-    $(".combobox-wrapper").on("click", e => {
-        const id = $(e.currentTarget).parent().attr("id")
-        toggleClass($(`#${id} > .combobox-items`), "collapsed-combobox")
-        const module = $(e.currentTarget).parent().parent().parent().parent().attr("id").split("-")[0]
-        forceUpdate(module)
-    })
+    // TODO
+    // $(".combobox-items > li").on("click", e => {
+    //     const $e = $(e.target)
+    //     const { id, moduleName, settingName, refreshSetting } = getSettingFromChild($e)
+    //     toggleClass($e, "selected-item")
+    //     refreshSettings(setting.parent)
+    // })
+    // $(".combobox-wrapper").on("click", e => {
+    //     const id = $(e.currentTarget).parent().attr("id")
+    //     toggleClass($(`#${id} > .combobox-items`), "collapsed-combobox")
+    //     const module = $(e.currentTarget).parent().parent().parent().parent().attr("id").split("-")[0]
+    //     forceUpdate(module)
+    // })
 
     $(".selectbox-value").on("click", e => {
-        const that = e.currentTarget
-        const name = that.parentElement.id
-        const setting = settings.get(name)
-        const $value = $(that)
-        let i = setting.acceptableValues.indexOf($value.text())
+        const $that = $(e.currentTarget)
+        const { moduleName, settingName, setting, refreshSetting } = getSettingFromChild($that)
+
+        let i = setting.acceptableValues.indexOf($that.text())
         i = ++i === setting.acceptableValues.length ? 0 : i
         const val = setting.acceptableValues[i]
-        $value.text(val)
-        refreshSettings(setting.parent)
+        $that.text(val)
+        refreshSetting()
 
-        sto[setting.parent.rawName][name] = val // Sto: save
+        sto[moduleName][settingName] = val // Sto: save
     })
 
     $(".textbox").on("change", e => {
-        const that = e.currentTarget
-        const name = that.parentElement.id
-        const setting = settings.get(name)
+        const $that = $(e.currentTarget)
+        const { moduleName, settingName } = getSettingFromChild($that)
 
-        sto[setting.parent.rawName][name] = that.value // Sto: save
+        sto[moduleName][settingName] = $that.val() // Sto: save
     })
     $(".textbox-at").on("click", e => {
         const $at = $(e.currentTarget)
@@ -453,13 +458,14 @@ const registerHandlers = () => {
 
     $(".checkbox-value").parent().on("click", e => {
         // Note: Larger clicking area.
-        const name = e.currentTarget.id
-        const $e = $(e.currentTarget).children(".checkbox-value")
-        const setting = settings.get(name)
-        const val = toggleClass($e, "checkbox-checked")
-        refreshSettings(setting.parent)
+        const $that = $(e.currentTarget)
+        const { moduleName, settingName, refreshSetting } = getSettingFromChild($that)
 
-        sto[setting.parent.rawName][name] = val // Sto: save
+        const $val = $that.children(".checkbox-value")
+        const val = toggleClass($val, "checkbox-checked")
+        refreshSetting()
+
+        sto[moduleName][settingName] = val // Sto: save
     })
 
     $(".sliders").contextmenu(e => {
@@ -500,6 +506,7 @@ window.novogui = {
         window.novogui._ = modules
         sto = window.exlg.TM_dat.sto
 
+        $(".clickgui").attr("data-lang", [ "en", "zh" ].indexOf(sto["@dash-board"].lang))
         registerModules(modules)
         renderMessages()
         renderSidebar()
