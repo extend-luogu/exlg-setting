@@ -94,8 +94,8 @@ const getNextSlider = sliderId => ({ h: "s", s: "l", l: "h" } [sliderId])
 const _checkboxChecked = setting => $(`#${setting} > .checkbox-value`).hasClass("checkbox-checked")
 const _getSliderValue = setting =>  $(`#${setting} > .real-slider`).val()
 const _getSelectboxValue = setting => $(`#${setting} > .selectbox-value`).text()
-const _selectboxHasItem = (setting, item) => $(`#${setting} > .combobox-items > li:contains('${item}')`).hasClass("selected-item")
-const expandHandler = module => {
+const _selectboxHasItem = (setting, item) => $(`#${setting} > .combobox-items > li:contains('${item}')`).hasClass("selected-item") // Hack: 这种被我认定为无害的所以没改
+const expandHandler = module => { // Hack: 什么？上一行注释没看懂?你会明白的，记得向下看。
     const $growDiv = $(`#${module}-module > .module-settings-wrapper`)
     const $expander = $(`#${module}-module > .module-header > .module-expand`)
     if ($growDiv.height()) {
@@ -270,7 +270,8 @@ const renderSettings = module => {
                 ${ setting.description?.map((s, k) => `data-desc-${k}="${s}"`).join(" ") ?? "" }
             >
         `
-
+        /* Hack: 这个地方用了xxx/xx的id形式，可能会导致不能用
+Hack: 有毒是吧...那我去改成getElementById..底下有注释*/
         switch (SettingType[setting.type]) {
         case SettingType.SELECTBOX:
             html += `
@@ -299,7 +300,7 @@ const renderSettings = module => {
             html += `
 				<span class="setting-title">${ setting.displayName }</span>
 				<span class="textbox-at">@</span>
-				<textarea class="textbox">${ val || "" /* Sto: load */  }</textarea>
+				<textarea class="textbox" rows="1" style="font-family: ${sto["code-block-ex"].copy_code_font}">${ val || "" /* Sto: load */  }</textarea>
             `
             break
         case SettingType.SLIDER:
@@ -369,7 +370,7 @@ const renderSidebar = () => {
 const refreshSettingVisiblity = module => {
     if ("settings" in module)
         module.settings.forEach(setting =>
-            $(`#${ module.name }-${ setting.name }`)[
+            $(document.getElementById(`${ module.name }/${ setting.name }`))[
                 eval(setting.visibilityDependency) === false ? "addClass" : "removeClass"
             ] ("setting-disabled")
         )
@@ -379,10 +380,10 @@ const refreshSettings = module => {
     forceUpdate(module.name)
 }
 const _getHSLColorFromSetting = setting => {
-    const h = $(`#${setting} > .sliders > .real-h-slider`).val()
-    const s = $(`#${setting} > .sliders > .real-s-slider`).val()
-    const l = $(`#${setting} > .sliders > .real-l-slider`).val()
-    return `hsl(${h}, ${s}, ${l})`
+    const h = $(document.getElementById(setting)).children(`.sliders`).children(`.real-h-slider`).val()
+    const s = $(document.getElementById(setting)).children(`.sliders`).children(`.real-s-slider`).val()
+    const l = $(document.getElementById(setting)).children(`.sliders`).children(`.real-l-slider`).val()
+    return `hsl(${h}, ${s}, ${l})` // Hack: 动过了
 }
 const getSettingFromChild = $e => {
     const $setting = $e.is(".setting") ? $e : $e.parents(".setting")
@@ -401,8 +402,8 @@ const registerHandlers = () => {
     $(".real-slider").on("input", e => {
         const $that = $(e.currentTarget)
         const { id, moduleName, settingName, refreshSetting } = getSettingFromChild($that)
-        $(`#${id} > .display-slider`).val($that.val())
-        $(`#${id} > .slider-value-holder > .slider-value`).html($that.val())
+        $(document.getElementById(id)).children(`.display-slider`).val($that.val())
+        $(document.getElementById(id)).children(`.slider-value-holder`).children(`.slider-value`).html($that.val()) // Note: 改了
         refreshSetting()
 
         sto[moduleName][settingName] = + $that.val() // Sto: save
@@ -417,7 +418,7 @@ const registerHandlers = () => {
     // })
     // $(".combobox-wrapper").on("click", e => {
     //     const id = $(e.currentTarget).parent().attr("id")
-    //     toggleClass($(`#${id} > .combobox-items`), "collapsed-combobox")
+    //     toggleClass($(document.getElementById(id)).children(`.combobox-items`), "collapsed-combobox")
     //     const module = $(e.currentTarget).parent().parent().parent().parent().attr("id").split("-")[0]
     //     forceUpdate(module)
     // })
@@ -473,10 +474,10 @@ const registerHandlers = () => {
         const slider = $(e.target).parent().attr("slider")
         const next = getNextSlider(slider)
         $(e.target).parent().attr("slider", next)
-        $(`#${id} > .sliders > .${slider}-slider`).addClass("disabled-color-slider")
-        $(`#${id} > .sliders > .real-${slider}-slider`).attr("disabled", true).addClass("disabled-color-slider")
-        $(`#${id} > .sliders > .${next}-slider`).removeClass("disabled-color-slider")
-        $(`#${id} > .sliders > .real-${next}-slider`).attr("disabled", false).removeClass("disabled-color-slider")
+        $(document.getElementById(id)).children(`.sliders`).children(`.${slider}-slider`).addClass("disabled-color-slider")
+        $(document.getElementById(id)).children(`.sliders`).children(`.real-${slider}-slider`).attr("disabled", true).addClass("disabled-color-slider")
+        $(document.getElementById(id)).children(`.sliders`).children(`.${next}-slider`).removeClass("disabled-color-slider")
+        $(document.getElementById(id)).children(`.sliders`).children(`.real-${next}-slider`).attr("disabled", false).removeClass("disabled-color-slider")
 
         return false
     })
@@ -486,16 +487,16 @@ const registerHandlers = () => {
         const that = e.currentTarget
         const slider = $(that).attr("slider")
         const id = $(that).parent().parent().attr("id")
-        $(`#${id} > .sliders > .${slider}-slider`).val(that.value)
+        $(document.getElementById(id)).children(`.sliders`).children(`.${slider}-slider`).val(that.value)
         if (slider === "h") {
-            $(`#${id} > .sliders > .s-slider`).css("background-color", `hsl(${that.value}, 100%, 50%)`)
-            $(`#${id} > .sliders > .l-slider`).css("background-color", `hsl(${that.value}, 100%, 50%)`)
+            $(document.getElementById(id)).children(`.sliders`).children(`.s-slider`).css("background-color", `hsl(${that.value}, 100%, 50%)`)
+            $(document.getElementById(id)).children(`.sliders`).children(`.l-slider`).css("background-color", `hsl(${that.value}, 100%, 50%)`)
         }
     })
     $(".real-h-slider").each((_, that) => {
         const id = $(that).parent().parent().attr("id")
-        $(`#${id} > .sliders > .s-slider`).css("background-color", `hsl(${that.value}, 100%, 50%)`)
-        $(`#${id} > .sliders > .l-slider`).css("background-color", `hsl(${that.value}, 100%, 50%)`)
+        $(document.getElementById(id)).children(`.sliders`).children(`.s-slider`).css("background-color", `hsl(${that.value}, 100%, 50%)`)
+        $(document.getElementById(id)).children(`.sliders`).children(`.l-slider`).css("background-color", `hsl(${that.value}, 100%, 50%)`)
     })
 }
 
