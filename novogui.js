@@ -351,9 +351,12 @@ const renderSidebar = () => {
             sto = window.exlg.TM_dat.sto = window.exlg.TM_dat.reload_dat()
             msg("Storage is synchronized.")
         },
-        upd: () => {
+        chk: () => {
             window.exlg.mod.execute("^update")
-        }
+        },
+		upd: () => {
+			window.open("https://github.com/extend-luogu/extend-luogu/raw/main/extend-luogu.user.js")
+		}
     }
 
     for (const n in op) {

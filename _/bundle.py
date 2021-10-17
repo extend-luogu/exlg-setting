@@ -1,5 +1,3 @@
-#!/bin/env python3
-
 import re
 
 d = ""
@@ -11,7 +9,7 @@ for i, ln in enumerate(text):
     m = re.match(r'^\t<script src="(.*?)"></script>', ln)
     if m:
         fn = m.group(1)
-        with open(d + fn, "r") as js:
+        with open(d + fn, "r", encoding = "utf-8") as js:
             text[i] = (
                 "\t<script>\n" + "".join(js.readlines()) + "\t</script>\n\n"
             )
@@ -23,7 +21,7 @@ for i, ln in enumerate(text):
     )
     if m:
         fn = m.group(1)
-        with open(d + fn, "r") as css:
+        with open(d + fn, "r", encoding = "utf-8") as css:
             text[i] = (
                 "\t<style>\n" + "".join(css.readlines()) + "\t</style>\n\n"
             )
